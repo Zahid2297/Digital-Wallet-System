@@ -7,7 +7,7 @@ app.use(cors());
 app.use(express.json());
 
 app.get("/", (req, res) => {
-  res.send("Running....");
+  res.send("Server is Running....");
 });
 
 export default app;

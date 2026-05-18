@@ -1,7 +1,7 @@
-import { User } from "../models/user.mongoose";
+import { User } from "../models/user.mongoose.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
-import { asyncHandle, asyncHandler } from "../utils/asyncHandler";
+import { asyncHandler } from "../utils/asyncHandler.js";
 
 export const register = asyncHandler(async (req, res) => {
   const { name, email, password } = req.body;
@@ -26,10 +26,10 @@ export const register = asyncHandler(async (req, res) => {
 
   //create user
   const user = await User.create({ name, email, password: hashedPassword });
-
+  const { password: _, ...userWithoutPassword } = user.toObject();
   res.status(201).json({
     message: "USer register successfully",
-    user,
+    user: userWithoutPassword,
   });
 });
 

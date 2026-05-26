@@ -39,7 +39,6 @@ export default function Login() {
 
   return (
     <div className="flex min-h-screen w-full">
-      {/* LEFT: Blue branding */}
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-[#2463eb] items-center justify-center p-12">
         <div className="absolute inset-0 bg-gradient-to-br from-[#2463eb] via-blue-600 to-indigo-900 opacity-90"></div>
         <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-white/10 rounded-full blur-3xl"></div>
@@ -83,10 +82,8 @@ export default function Login() {
         </div>
       </div>
 
-      {/* RIGHT: White login form */}
       <div className="w-full lg:w-1/2 flex flex-col justify-center px-6 sm:px-12 lg:px-24 bg-white">
         <div className="max-w-[440px] w-full mx-auto">
-          {/* Mobile logo */}
           <header className="mb-10">
             <div className="lg:hidden flex items-center gap-2 text-[#2463eb] mb-8">
               <span className="material-symbols-outlined text-3xl">
@@ -111,7 +108,6 @@ export default function Login() {
           )}
 
           <form className="space-y-6" onSubmit={handleSubmit}>
-            {/* Social Buttons */}
             <div className="grid grid-cols-2 gap-4">
               <button
                 type="button"
@@ -135,7 +131,6 @@ export default function Login() {
               </button>
             </div>
 
-            {/* Divider */}
             <div className="relative flex items-center py-2">
               <div className="flex-grow border-t border-slate-200"></div>
               <span className="flex-shrink mx-4 text-slate-400 text-xs font-medium uppercase tracking-wider">
@@ -144,7 +139,6 @@ export default function Login() {
               <div className="flex-grow border-t border-slate-200"></div>
             </div>
 
-            {/* Email */}
             <div className="space-y-2">
               <label
                 className="text-sm font-semibold text-slate-700"
@@ -173,7 +167,6 @@ export default function Login() {
               </div>
             </div>
 
-            {/* Password */}
             <div className="space-y-2">
               <div className="flex justify-between items-center">
                 <label
@@ -219,7 +212,6 @@ export default function Login() {
               </div>
             </div>
 
-            {/* Remember Me */}
             <div className="flex items-center">
               <input
                 id="remember-me"
@@ -239,7 +231,6 @@ export default function Login() {
               </label>
             </div>
 
-            {/* Submit */}
             <button
               type="submit"
               disabled={loading}

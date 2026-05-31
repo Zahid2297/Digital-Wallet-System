@@ -24,6 +24,30 @@ const userSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    phone: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+    location: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+    avatarIndex: {
+      type: Number,
+      default: 1,
+      min: 1,
+      max: 5,
+    },
+    tfaEnabled: {
+      type: Boolean,
+      default: false,
+    },
+    emailDigest: {
+      type: Boolean,
+      default: true,
+    },
   },
   { timestamps: true },
 );

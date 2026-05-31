@@ -7,21 +7,6 @@ export function setStoredUser(user) {
   localStorage.setItem("user", JSON.stringify(user));
 }
 
-export function getPrefsKey(userId) {
-  return `nexuspay_prefs_${userId}`;
-}
-
-export function loadPrefs(userId) {
-  if (!userId) return {};
-  const raw = localStorage.getItem(getPrefsKey(userId));
-  return raw ? JSON.parse(raw) : {};
-}
-
-export function savePrefs(userId, prefs) {
-  if (!userId) return;
-  localStorage.setItem(getPrefsKey(userId), JSON.stringify(prefs));
-}
-
 export function clearAuth() {
   localStorage.removeItem("token");
   localStorage.removeItem("user");
@@ -29,4 +14,13 @@ export function clearAuth() {
 
 export function isAuthenticated() {
   return Boolean(localStorage.getItem("token"));
+}
+
+export function downloadBlob(blob, filename) {
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  link.click();
+  window.URL.revokeObjectURL(url);
 }

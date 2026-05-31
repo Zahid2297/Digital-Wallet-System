@@ -2,17 +2,15 @@ import { User } from "../models/user.mongoose.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import bcrypt from "bcryptjs";
 
-// GET profile
 export const getProfile = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id);
   res.status(200).json({ user });
 });
 
-// PUT update profile
 export const updateProfile = asyncHandler(async (req, res) => {
-  const { name, email } = req.body;
+  const { name, email, phone, location, avatarIndex, tfaEnabled, emailDigest } =
+    req.body;
 
-  // Check if new email already exists for another user
   if (email) {
     const existingUser = await User.findOne({ email });
     if (
@@ -26,6 +24,11 @@ export const updateProfile = asyncHandler(async (req, res) => {
   const updates = {};
   if (name !== undefined && name !== "") updates.name = name;
   if (email !== undefined && email !== "") updates.email = email;
+  if (phone !== undefined) updates.phone = phone;
+  if (location !== undefined) updates.location = location;
+  if (avatarIndex !== undefined) updates.avatarIndex = avatarIndex;
+  if (tfaEnabled !== undefined) updates.tfaEnabled = tfaEnabled;
+  if (emailDigest !== undefined) updates.emailDigest = emailDigest;
 
   const updatedUser = await User.findByIdAndUpdate(req.user._id, updates, {
     new: true,
@@ -37,7 +40,6 @@ export const updateProfile = asyncHandler(async (req, res) => {
   });
 });
 
-// PUT change password
 export const changePassword = asyncHandler(async (req, res) => {
   const { currentPassword, newPassword } = req.body;
 
@@ -45,19 +47,14 @@ export const changePassword = asyncHandler(async (req, res) => {
     throw new Error("All fields are required");
   }
 
-  // Get user WITH password
   const user = await User.findById(req.user._id).select("+password");
 
-  // Verify current password is correct
   const isMatch = await bcrypt.compare(currentPassword, user.password);
   if (!isMatch) {
     throw new Error("Current password is incorrect");
   }
 
-  // Hash new password
   const hashedPassword = await bcrypt.hash(newPassword, 12);
-
-  // Save new password
   await User.findByIdAndUpdate(req.user._id, { password: hashedPassword });
 
   res.status(200).json({ message: "Password changed successfully" });

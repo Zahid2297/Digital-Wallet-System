@@ -4,18 +4,27 @@ import * as profileApi from "../api/profile.api.js";
 import {
   clearAuth,
   getStoredUser,
-  loadPrefs,
-  savePrefs,
   setStoredUser,
   isAuthenticated,
 } from "../utils/auth.js";
-import { mapTransaction, mapUserToProfile } from "../utils/mappers.js";
+import { mapTransaction, mapUserToProfile, profileToApiPayload } from "../utils/mappers.js";
 
 const AppContext = createContext(undefined);
+
+const emptyStats = {
+  monthlyDeposits: 0,
+  monthlyWithdrawals: 0,
+  totalIncome: 0,
+  totalSpending: 0,
+  netFlow: 0,
+  volumeByMonth: [],
+  incomeExpenseTrend: [],
+};
 
 export function AppStateProvider({ children }) {
   const [balance, setBalance] = useState(0);
   const [transactions, setTransactions] = useState([]);
+  const [stats, setStats] = useState(emptyStats);
   const [profile, setProfile] = useState({
     fullName: "",
     email: "",
@@ -23,23 +32,25 @@ export function AppStateProvider({ children }) {
     location: "",
     avatarIndex: 1,
     tfaEnabled: false,
+    emailDigest: true,
   });
   const [loading, setLoading] = useState(isAuthenticated());
   const [error, setError] = useState(null);
 
   const refreshWallet = useCallback(async () => {
-    const [balanceRes, txRes] = await Promise.all([
+    const [balanceRes, statsRes, txRes] = await Promise.all([
       walletApi.getBalance(),
-      walletApi.getTransactions(),
+      walletApi.getWalletStats(),
+      walletApi.getTransactions({ limit: 10, page: 1 }),
     ]);
     setBalance(balanceRes.balance ?? 0);
+    setStats(statsRes);
     setTransactions((txRes.transactions || []).map(mapTransaction));
   }, []);
 
   const refreshProfile = useCallback(async () => {
     const { user } = await profileApi.getProfile();
-    const prefs = loadPrefs(user._id);
-    setProfile(mapUserToProfile(user, prefs));
+    setProfile(mapUserToProfile(user));
     setStoredUser({
       _id: user._id,
       name: user.name,
@@ -70,21 +81,8 @@ export function AppStateProvider({ children }) {
   }, [loadUserData]);
 
   const updateProfile = async (details) => {
-    const user = getStoredUser();
-    const name = details.fullName ?? profile.fullName;
-    const email = details.email ?? profile.email;
-
-    await profileApi.updateProfile({ name, email });
-
-    if (user?._id) {
-      savePrefs(user._id, {
-        phone: details.phone ?? profile.phone,
-        location: details.location ?? profile.location,
-        avatarIndex: details.avatarIndex ?? profile.avatarIndex,
-        tfaEnabled: details.tfaEnabled ?? profile.tfaEnabled,
-      });
-    }
-
+    const payload = profileToApiPayload({ ...profile, ...details });
+    await profileApi.updateProfile(payload);
     await refreshProfile();
   };
 
@@ -92,11 +90,9 @@ export function AppStateProvider({ children }) {
     await profileApi.changePassword({ currentPassword, newPassword });
   };
 
-  const depositFunds = async (amount, method) => {
-    const methodLabel =
-      method === "visa" ? "Visa Card •• 4242" : "Chase Bank •• 9801";
+  const depositFunds = async (amount, description = "Wallet deposit") => {
     try {
-      await walletApi.addMoney(amount, `Deposit via ${methodLabel}`);
+      await walletApi.addMoney(amount, description);
       await refreshWallet();
       const user = getStoredUser();
       if (user) {
@@ -132,6 +128,7 @@ export function AppStateProvider({ children }) {
     clearAuth();
     setBalance(0);
     setTransactions([]);
+    setStats(emptyStats);
     setProfile({
       fullName: "",
       email: "",
@@ -139,6 +136,7 @@ export function AppStateProvider({ children }) {
       location: "",
       avatarIndex: 1,
       tfaEnabled: false,
+      emailDigest: true,
     });
     setError(null);
     setLoading(false);
@@ -149,6 +147,7 @@ export function AppStateProvider({ children }) {
       value={{
         balance,
         transactions,
+        stats,
         profile,
         loading,
         error,

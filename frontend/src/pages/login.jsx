@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { login as loginApi } from "../api/auth.api.js";
+import { login as loginApi } from "../api/auth.api";
 import { useAppState } from "../context/AppContext";
 
 export default function Login() {
@@ -106,37 +106,6 @@ export default function Login() {
           )}
 
           <form className="space-y-6" onSubmit={handleSubmit}>
-            <div className="grid grid-cols-2 gap-4">
-              <button
-                type="button"
-                className="flex items-center justify-center gap-2 px-4 py-2.5 border border-slate-200 rounded-lg bg-white hover:bg-slate-50 transition-colors text-sm font-semibold text-slate-700"
-              >
-                <img
-                  alt="Google"
-                  className="w-5 h-5"
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuAzuhrTyZaSbUTs9JAwKJPvR0uauiKLkp0sDyVV91Sy2LrDv6Nqc2wdP929WHkDHgRPtSQevsotQ1l539zvmt0m3skSlHoRxorDja03_oZyYTqd-aueU8-I2OJpO8XaQEJ1-zzZZ7SAGwHjKvlxZPaVAjEZZ1EVkLED14XfszndmOuHDCajxerAr7dqFLpza9ayV0o4Ls6LhSZjkiPW8FMFvE7cdOD8QQxT0aDUBBJxSIUdsKpKpvdCK_LUldkIZgrt8JFIDh1BW60"
-                />
-                Google
-              </button>
-              <button
-                type="button"
-                className="flex items-center justify-center gap-2 px-4 py-2.5 border border-slate-200 rounded-lg bg-white hover:bg-slate-50 transition-colors text-sm font-semibold text-slate-700"
-              >
-                <span className="material-symbols-outlined text-[20px]">
-                  terminal
-                </span>
-                GitHub
-              </button>
-            </div>
-
-            <div className="relative flex items-center py-2">
-              <div className="flex-grow border-t border-slate-200"></div>
-              <span className="flex-shrink mx-4 text-slate-400 text-xs font-medium uppercase tracking-wider">
-                Or with email
-              </span>
-              <div className="flex-grow border-t border-slate-200"></div>
-            </div>
-
             <div className="space-y-2">
               <label
                 className="text-sm font-semibold text-slate-700"

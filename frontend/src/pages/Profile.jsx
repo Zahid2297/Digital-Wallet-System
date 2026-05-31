@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAppState } from "../context/AppContext";
 
 export default function Profile({ onLogoutClick }) {
-  const { balance, profile, updateProfile } = useAppState();
+  const { balance, profile, updateProfile, changePassword } = useAppState();
 
   // Navigation tabs state
   const [currentTab, setCurrentTab] = useState("Profile Information");
@@ -19,6 +19,15 @@ export default function Profile({ onLogoutClick }) {
   const [avatarIndex, setAvatarIndex] = useState(profile.avatarIndex);
   const [successMsg, setSuccessMsg] = useState("");
 
+  useEffect(() => {
+    setFullName(profile.fullName);
+    setEmail(profile.email);
+    setPhone(profile.phone);
+    setLocation(profile.location);
+    setTfaEnabled(profile.tfaEnabled);
+    setAvatarIndex(profile.avatarIndex);
+  }, [profile]);
+
   const sidebarLinks = [
     { name: "Profile Information", icon: "person" },
     { name: "Account Settings", icon: "settings" },
@@ -26,25 +35,38 @@ export default function Profile({ onLogoutClick }) {
     { name: "Billing", icon: "payments" },
   ];
 
-  const handleSaveProfile = (e) => {
+  const [saving, setSaving] = useState(false);
+
+  const handleSaveProfile = async (e) => {
     e.preventDefault();
-    updateProfile({
+    setSaving(true);
+    try {
+      await updateProfile({
+        fullName,
+        email,
+        phone,
+        location,
+        tfaEnabled,
+        avatarIndex,
+      });
+      setSuccessMsg("Successfully updated your profile settings!");
+      setTimeout(() => setSuccessMsg(""), 4000);
+    } catch (err) {
+      alert(err.message || "Failed to update profile.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleAvatarChange = async () => {
+    const nextIndex = (avatarIndex % 5) + 1;
+    setAvatarIndex(nextIndex);
+    await updateProfile({
       fullName,
       email,
       phone,
       location,
       tfaEnabled,
-      avatarIndex,
-    });
-    setSuccessMsg("Successfully updated your profile settings!");
-    setTimeout(() => setSuccessMsg(""), 4000);
-  };
-
-  const handleAvatarChange = () => {
-    const nextIndex = (avatarIndex % 5) + 1;
-    setAvatarIndex(nextIndex);
-    updateProfile({
-      ...profile,
       avatarIndex: nextIndex,
     });
   };
@@ -319,9 +341,10 @@ export default function Profile({ onLogoutClick }) {
                     </button>
                     <button
                       type="submit"
-                      className="px-6 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-bold hover:bg-blue-700 shadow-sm transition-all cursor-pointer"
+                      disabled={saving}
+                      className="px-6 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-bold hover:bg-blue-700 shadow-sm transition-all cursor-pointer disabled:opacity-60"
                     >
-                      Save Changes
+                      {saving ? "Saving..." : "Save Changes"}
                     </button>
                   </div>
                 </form>
@@ -366,12 +389,16 @@ export default function Profile({ onLogoutClick }) {
                   <div>
                     <button
                       type="button"
-                      onClick={() => {
-                        const newPass = prompt("Enter new password:");
-                        if (newPass) {
-                          alert(
-                            "Simulated Action: Your NexusPay account password has been updated securely.",
-                          );
+                      onClick={async () => {
+                        const currentPassword = prompt("Enter current password:");
+                        if (!currentPassword) return;
+                        const newPassword = prompt("Enter new password:");
+                        if (!newPassword) return;
+                        try {
+                          await changePassword(currentPassword, newPassword);
+                          alert("Password changed successfully.");
+                        } catch (err) {
+                          alert(err.message || "Failed to change password.");
                         }
                       }}
                       className="px-4 py-2.5 bg-slate-100 text-slate-700 text-sm font-bold rounded-lg hover:bg-slate-200 cursor-pointer transition-colors"

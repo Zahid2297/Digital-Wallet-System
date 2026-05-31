@@ -21,7 +21,9 @@ export default function Wallet({ onLogoutClick }) {
   const [sendAmount, setSendAmount] = useState("");
   const [sendMessage, setSendMessage] = useState("");
 
-  const handleAddFunds = (e) => {
+  const [actionLoading, setActionLoading] = useState(false);
+
+  const handleAddFunds = async (e) => {
     e.preventDefault();
     const amount = parseFloat(addAmount);
     if (isNaN(amount) || amount <= 0) {
@@ -32,17 +34,26 @@ export default function Wallet({ onLogoutClick }) {
       return;
     }
 
-    // Deposit globally
-    depositFunds(amount, paymentMethod);
-    setCheckoutMessage({
-      type: "success",
-      text: `Successfully added $${amount.toFixed(2)} to your balance via ${paymentMethod === "visa" ? "Visa •••• 4242" : "Chase •••• 9801"}!`,
-    });
-    setAddAmount("");
-    setTimeout(() => setCheckoutMessage(null), 5000); // clear message
+    setActionLoading(true);
+    const result = await depositFunds(amount, paymentMethod);
+    setActionLoading(false);
+
+    if (result.success) {
+      setCheckoutMessage({
+        type: "success",
+        text: `Successfully added $${amount.toFixed(2)} to your balance via ${paymentMethod === "visa" ? "Visa •••• 4242" : "Chase •••• 9801"}!`,
+      });
+      setAddAmount("");
+      setTimeout(() => setCheckoutMessage(null), 5000);
+    } else {
+      setCheckoutMessage({
+        type: "error",
+        text: result.error || "Deposit failed. Please try again.",
+      });
+    }
   };
 
-  const handleSendMoneySubmit = (e) => {
+  const handleSendMoneySubmit = async (e) => {
     e.preventDefault();
     const amount = parseFloat(sendAmount);
     if (!sendRecipient) {
@@ -54,7 +65,10 @@ export default function Wallet({ onLogoutClick }) {
       return;
     }
 
-    const result = sendFunds(sendRecipient, amount);
+    setActionLoading(true);
+    const result = await sendFunds(sendRecipient, amount);
+    setActionLoading(false);
+
     if (result.success) {
       setSendMessage(
         `Successfully transferred $${amount.toFixed(2)} to ${sendRecipient}!`,
@@ -187,19 +201,25 @@ export default function Wallet({ onLogoutClick }) {
                   </h1>
                   <div className="flex gap-4">
                     <button
-                      onClick={() => {
+                      onClick={async () => {
                         const amount = prompt("Enter amount to withdraw:");
                         if (amount) {
                           const val = parseFloat(amount);
                           if (!isNaN(val) && val > 0) {
-                            const success = withdrawFunds(val);
-                            if (success) {
+                            setActionLoading(true);
+                            const result = await withdrawFunds(
+                              val,
+                              "Bank Withdrawal",
+                            );
+                            setActionLoading(false);
+                            if (result.success) {
                               alert(
                                 `Successfully withdrew $${val.toFixed(2)} to Chase Bank account!`,
                               );
                             } else {
                               alert(
-                                "Insufficient balance to complete withdrawal.",
+                                result.error ||
+                                  "Insufficient balance to complete withdrawal.",
                               );
                             }
                           } else {
@@ -470,7 +490,8 @@ export default function Wallet({ onLogoutClick }) {
                   <button
                     id="checkout-funds-submit"
                     type="submit"
-                    className="w-full bg-blue-600 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 mt-4 hover:bg-blue-700 transition-all cursor-pointer shadow-sm text-sm"
+                    disabled={actionLoading}
+                    className="w-full bg-blue-600 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 mt-4 hover:bg-blue-700 transition-all cursor-pointer shadow-sm text-sm disabled:opacity-60"
                   >
                     Continue to Checkout{" "}
                     <span className="material-symbols-outlined text-sm">
@@ -579,9 +600,10 @@ export default function Wallet({ onLogoutClick }) {
               <div className="pt-2">
                 <button
                   type="submit"
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold py-2.5 rounded-lg transition-colors cursor-pointer"
+                  disabled={actionLoading}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold py-2.5 rounded-lg transition-colors cursor-pointer disabled:opacity-60"
                 >
-                  Send Funds Now
+                  {actionLoading ? "Processing..." : "Send Funds Now"}
                 </button>
               </div>
             </form>

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import Register from "./pages/register";
 import Login from "./pages/login";
 import Dashboard from "./pages/Dashboard";
@@ -7,54 +7,58 @@ import Wallet from "./pages/Wallet";
 import Transactions from "./pages/Transactions";
 import Profile from "./pages/Profile";
 import LogoutModal from "./pages/LogoutModal";
-import { AppStateProvider } from "./context/AppContext";
+import { AppStateProvider, useAppState } from "./context/AppContext";
+import ProtectedRoute from "./components/ProtectedRoute";
+import GuestRoute from "./components/GuestRoute";
 
-export default function App() {
+function AppRoutes() {
   const [isLogoutOpen, setIsLogoutOpen] = useState(false);
+  const { logout } = useAppState();
+  const navigate = useNavigate();
 
   const handleLogoutConfirm = () => {
+    logout();
     setIsLogoutOpen(false);
-    // Standard secure redirection back to login
-    window.location.href = "/login";
+    navigate("/login", { replace: true });
   };
 
+  const withLogout = (Page) => <Page onLogoutClick={() => setIsLogoutOpen(true)} />;
+
+  return (
+    <>
+      {isLogoutOpen && (
+        <LogoutModal
+          onClose={() => setIsLogoutOpen(false)}
+          onConfirm={handleLogoutConfirm}
+        />
+      )}
+
+      <Routes>
+        <Route path="/" element={<Navigate to="/login" replace />} />
+
+        <Route element={<GuestRoute />}>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+        </Route>
+
+        <Route element={<ProtectedRoute />}>
+          <Route path="/dashboard" element={withLogout(Dashboard)} />
+          <Route path="/wallet" element={withLogout(Wallet)} />
+          <Route path="/transactions" element={withLogout(Transactions)} />
+          <Route path="/profile" element={withLogout(Profile)} />
+        </Route>
+
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    </>
+  );
+}
+
+export default function App() {
   return (
     <AppStateProvider>
       <BrowserRouter>
-        {isLogoutOpen && (
-          <LogoutModal
-            onClose={() => setIsLogoutOpen(false)}
-            onConfirm={handleLogoutConfirm}
-          />
-        )}
-
-        <Routes>
-          <Route path="/" element={<Navigate to="/login" replace />} />
-
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-
-          <Route
-            path="/dashboard"
-            element={<Dashboard onLogoutClick={() => setIsLogoutOpen(true)} />}
-          />
-          <Route
-            path="/wallet"
-            element={<Wallet onLogoutClick={() => setIsLogoutOpen(true)} />}
-          />
-          <Route
-            path="/transactions"
-            element={
-              <Transactions onLogoutClick={() => setIsLogoutOpen(true)} />
-            }
-          />
-          <Route
-            path="/profile"
-            element={<Profile onLogoutClick={() => setIsLogoutOpen(true)} />}
-          />
-
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
-        </Routes>
+        <AppRoutes />
       </BrowserRouter>
     </AppStateProvider>
   );

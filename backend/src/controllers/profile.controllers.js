@@ -23,11 +23,13 @@ export const updateProfile = asyncHandler(async (req, res) => {
     }
   }
 
-  const updatedUser = await User.findByIdAndUpdate(
-    req.user._id,
-    { name, email },
-    { new: true }, // return updated user
-  );
+  const updates = {};
+  if (name !== undefined && name !== "") updates.name = name;
+  if (email !== undefined && email !== "") updates.email = email;
+
+  const updatedUser = await User.findByIdAndUpdate(req.user._id, updates, {
+    new: true,
+  });
 
   res.status(200).json({
     message: "Profile updated successfully",

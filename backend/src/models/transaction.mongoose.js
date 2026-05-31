@@ -25,7 +25,7 @@ const transactionSchema = new mongoose.Schema(
       default: "success",
     },
   },
-  { timestamp: true },
+  { timestamps: true },
 );
 
 export const transaction = mongoose.model("transaction", transactionSchema);

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { register as registerApi } from "../api/auth.api.js";
 
 export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
@@ -45,17 +46,11 @@ export default function Register() {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch("http://localhost:5000/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          password: formData.password,
-        }),
+      await registerApi({
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Registration failed");
       navigate("/login");
     } catch (err) {
       setError(err.message);

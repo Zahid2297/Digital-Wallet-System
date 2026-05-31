@@ -5,7 +5,7 @@ import app from "./src/app.js";
 
 connectDB();
 
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 5001;
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);

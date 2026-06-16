@@ -72,10 +72,13 @@ The project focuses on:
 ## 📸 Screenshots
 
 ![Login](Screenshots/Loginpage.png)
-![Dashboard](screenshots/dashboard.png)
-![Dashboard](screenshots/dashboard.png)
-![Dashboard](screenshots/dashboard.png)
-![Dashboard](screenshots/dashboard.png)
+![Register](Screenshots/Registerpage.png)
+![Dashboard](Screenshots/Dashoardpage.png)
+![Transaction](Screenshots/Transactionpage.png)
+![Wallet](Screenshots/Walletpage.png)
+![Profile](Screenshots/Profilepage.png)
+![Logout](Screenshots/Logoutpage.png)
+
 ```
 
 ---

@@ -71,7 +71,7 @@ The project focuses on:
 
 ## 📸 Screenshots
 
-![Login](Screenshots/Loginpage.png)
+![Login](Screenshots/Login-page.png)
 ![Dashboard](screenshots/dashboard.png)
 ![Dashboard](screenshots/dashboard.png)
 ![Dashboard](screenshots/dashboard.png)

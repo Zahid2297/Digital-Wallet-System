@@ -1,6 +1,7 @@
 import express from "express";
 import authRoutes from "./routes/auth.routes.js";
 import walletRoutes from "./routes/wallet.routes.js";
+import razorpayRoutes from "./routes/razorpay.routes.js";
 import profileRoutes from "./routes/profile.routes.js";
 import cors from "cors";
 
@@ -30,6 +31,7 @@ app.use(express.json());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/wallet", walletRoutes);
+app.use("/api/wallet/razorpay", razorpayRoutes);
 app.use("/api/profile", profileRoutes);
 
 app.get("/", (req, res) => {

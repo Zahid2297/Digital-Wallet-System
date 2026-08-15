@@ -21,3 +21,11 @@ export const withdrawMoney = (amount, description) =>
   api
     .post("/wallet/withdraw", { amount, description })
     .then((res) => res.data);
+
+export const createRazorpayOrder = (amount, description) =>
+  api
+    .post("/wallet/razorpay/create-order", { amount, description })
+    .then((res) => res.data);
+
+export const verifyRazorpayPayment = (payload) =>
+  api.post("/wallet/razorpay/verify", payload).then((res) => res.data);

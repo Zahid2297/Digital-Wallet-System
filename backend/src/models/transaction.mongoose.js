@@ -24,6 +24,18 @@ const transactionSchema = new mongoose.Schema(
       enum: ["pending", "success", "failed"],
       default: "success",
     },
+    paymentGateway: {
+      type: String,
+      enum: ["wallet", "razorpay"],
+      default: "wallet",
+    },
+    razorpayOrderId: {
+      type: String,
+      index: true,
+    },
+    razorpayPaymentId: {
+      type: String,
+    },
   },
   { timestamps: true },
 );

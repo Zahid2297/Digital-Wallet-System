@@ -29,8 +29,11 @@ export default function Wallet({ onLogoutClick }) {
   const handleAddFunds = async (e) => {
     e.preventDefault();
     const amount = parseFloat(addAmount);
-    if (isNaN(amount) || amount <= 0) {
-      setCheckoutMessage({ type: "error", text: "Enter a valid amount greater than $0." });
+    if (isNaN(amount) || amount < 1) {
+      setCheckoutMessage({
+        type: "error",
+        text: "Enter at least ₹1 to pay with Razorpay.",
+      });
       return;
     }
     setActionLoading(true);
@@ -39,12 +42,15 @@ export default function Wallet({ onLogoutClick }) {
     if (result.success) {
       setCheckoutMessage({
         type: "success",
-        text: `$${amount.toFixed(2)} added to your wallet balance.`,
+        text: `₹${amount.toFixed(2)} paid via Razorpay and added to your wallet.`,
       });
       setAddAmount("");
-      setTimeout(() => setCheckoutMessage(null), 5000);
+      setTimeout(() => setCheckoutMessage(null), 6000);
     } else {
-      setCheckoutMessage({ type: "error", text: result.error || "Deposit failed." });
+      setCheckoutMessage({
+        type: "error",
+        text: result.error || "Razorpay payment failed.",
+      });
     }
   };
 
@@ -188,7 +194,6 @@ export default function Wallet({ onLogoutClick }) {
           <div className="space-y-6">
             <div className="bg-white rounded-xl p-6 border border-slate-200">
               <h3 className="font-bold text-lg mb-1">Add Funds</h3>
-              <p className="text-xs text-slate-500 mb-4">Funds are added directly to your wallet balance.</p>
               {checkoutMessage && (
                 <div
                   className={`p-3 rounded-lg mb-4 text-xs font-semibold ${
@@ -202,31 +207,28 @@ export default function Wallet({ onLogoutClick }) {
               )}
               <form onSubmit={handleAddFunds} className="space-y-4">
                 <div>
-                  <label className="text-sm text-slate-500 mb-1 block">Amount</label>
+                  <label className="text-sm text-slate-500 mb-1 block">Amount (INR)</label>
                   <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">$</span>
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">₹</span>
                     <input
                       type="number"
-                      step="0.01"
+                      step="1"
+                      min="1"
                       value={addAmount}
                       onChange={(e) => setAddAmount(e.target.value)}
                       className="w-full bg-slate-50 border border-slate-200 rounded-lg py-3 pl-8 pr-4 font-bold"
-                      placeholder="0.00"
+                      placeholder="100"
                       required
                     />
                   </div>
                 </div>
-                <p className="text-xs text-slate-400">
-                  <Link to="/wallet/payment-methods" className="text-blue-600 hover:underline font-medium">
-                    Manage payment methods
-                  </Link>
-                </p>
                 <button
                   type="submit"
                   disabled={actionLoading}
-                  className="w-full bg-blue-600 text-white font-bold py-3 rounded-lg disabled:opacity-60"
+                  className="w-full bg-blue-600 text-white font-bold py-3 rounded-lg disabled:opacity-60 flex items-center justify-center gap-2"
                 >
-                  {actionLoading ? "Processing..." : "Add to Wallet"}
+                  <span className="material-symbols-outlined text-[18px]">payments</span>
+                  {actionLoading ? "Waiting for payment..." : "Pay with Razorpay"}
                 </button>
               </form>
             </div>

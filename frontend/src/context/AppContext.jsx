@@ -8,6 +8,7 @@ import {
   isAuthenticated,
 } from "../utils/auth.js";
 import { mapTransaction, mapUserToProfile, profileToApiPayload } from "../utils/mappers.js";
+import { openRazorpayCheckout } from "../utils/razorpay.js";
 
 const AppContext = createContext(undefined);
 
@@ -90,9 +91,23 @@ export function AppStateProvider({ children }) {
     await profileApi.changePassword({ currentPassword, newPassword });
   };
 
-  const depositFunds = async (amount, description = "Wallet deposit") => {
+  const depositFunds = async (amount, description = "Razorpay wallet top-up") => {
     try {
-      await walletApi.addMoney(amount, description);
+      const orderRes = await walletApi.createRazorpayOrder(amount, description);
+      const payment = await openRazorpayCheckout({
+        keyId: orderRes.keyId,
+        order: orderRes.order,
+        name: profile.fullName,
+        email: profile.email,
+        description,
+      });
+
+      await walletApi.verifyRazorpayPayment({
+        razorpay_order_id: payment.razorpay_order_id,
+        razorpay_payment_id: payment.razorpay_payment_id,
+        razorpay_signature: payment.razorpay_signature,
+      });
+
       await refreshWallet();
       const user = getStoredUser();
       if (user) {

@@ -1,6 +1,5 @@
 import axios from "axios";
 
-// In dev, Vite proxies /api → backend (see vite.config.js). Set VITE_API_URL for direct calls.
 export const API_BASE_URL = import.meta.env.VITE_API_URL || "";
 
 const api = axios.create({
